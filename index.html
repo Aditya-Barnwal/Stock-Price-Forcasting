@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Stock Price Prediction</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/tailwind.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .dark {
+            background-color: #1a202c;
+            color: #f7fafc;
+        }
+        .dark input, .dark select {
+            background-color: #2d3748;
+            border-color: #4a5568;
+            color: #f7fafc;
+        }
+        .dark button {
+            background-color: #4c51bf;
+            color: #f7fafc;
+        }
+        .dark button:hover {
+            background-color: #6b46c1;
+        }
+        .dark .card {
+            background-color: #2d3748;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            color: #f7fafc;
+        }
+        .dark h1 {
+            color: #f7fafc;
+        }
+        .dark p {
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-300">Professional Stock Price Prediction</h1>
+            <div class="flex items-center">
+                <label for="darkMode" class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">Dark Mode</label>
+                <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                    <input type="checkbox" name="darkMode" id="darkMode" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                    <label for="darkMode" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden card dark:bg-gray-800">
+            <div class="px-6 py-8 sm:px-10 sm:py-10">
+                <p class="text-gray-600 dark:text-gray-400 text-lg">Get accurate forecasts for your investments</p>
+                <form id="predictionForm" class="mt-8 space-y-6">
+                    <div>
+                        <label for="ticker" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Stock Ticker:</label>
+                        <div class="mt-1">
+                            <input type="text" id="ticker" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="duration" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prediction Duration:</label>
+                        <div class="mt-1">
+                            <select id="duration" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
+                                <option value="1 week">1 Week</option>
+                                <option value="2 weeks">2 Weeks</option>
+                                <option value="1 month">1 Month</option>
+                                <option value="3 months">3 Months</option>
+                                <option value="6 months">6 Months</option>
+                                <option value="1 year">1 Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-indigo-700 dark:hover:bg-indigo-800">
+                            Get Prediction
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="chart" class="mt-8"></div>
+    </div>
+
+    <script>
+        const darkModeToggle = document.getElementById('darkMode');
+        const body = document.body;
+
+        darkModeToggle.addEventListener('change', () => {
+            body.classList.toggle('dark');
+        });
+
+        document.getElementById('predictionForm').onsubmit = async (e) => {
+            e.preventDefault();
+
+            const ticker = document.getElementById('ticker').value;
+            const duration = document.getElementById('duration').value;
+
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ticker, duration })
+            });
+
+            const data = await response.json();
+            const graphJSON = JSON.parse(data.graphJSON);
+            Plotly.newPlot('chart', graphJSON.data, graphJSON.layout);
+        };
+    </script>
+</body>
+</html>
